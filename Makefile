@@ -15,19 +15,23 @@
 
 CC = emcc
 CXX = em++
-EXE = example_emscripten.html
+EXE = example_emsdk.html
 
-IMGUI_DIR = /Users/jmgiorgi/Documents/Workspace/_libraries/imgui
+SOURCE_DIR = src
 BUILD_DIR = build
-SOURCE_DIR = ./
+IMGUI_DIR = /Users/jmgiorgi/Documents/Workspace/_libraries/imgui
 
-SOURCES = main.cpp
+SOURCES = ${SOURCE_DIR}/main.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 
-OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+$(warning |> SOURCES: $(SOURCES))
+$(warning |> OBJECTS: $(OBJS))
+
+#OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
 ##---------------------------------------------------------------------
 ## EMSCRIPTEN OPTIONS
@@ -70,7 +74,7 @@ LDFLAGS += --shell-file shell_minimal.html
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-%.o:%.cpp
+%.o:$(SOURCE_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/%.cpp
@@ -79,17 +83,14 @@ LDFLAGS += --shell-file shell_minimal.html
 %.o:$(IMGUI_DIR)/backends/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-%.o:../libs/gl3w/GL/%.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
-
 all: $(EXE)
 	@echo Build complete for $(EXE)
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(LIBS) $(LDFLAGS)
-
-clean:
-	rm -f $(EXE) $(OBJS) *.js *.wasm *.wasm.pre
+#
+#clean:
+#	rm -f $(EXE) $(OBJS) *.js *.wasm *.wasm.pre
 
 
 
